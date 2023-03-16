@@ -1,0 +1,4 @@
+- name: fedora_ovn
+  file: fedora_ovn.yml
+  description: fedora 37 VM with ovn-kubernetes kind local setup
+  numvms: 1
