@@ -1,9 +1,9 @@
 parameters:
   image: Fedora-Cloud-Base-37-1.7.x86_64.qcow2
   sharedfolders:
-    - ~/KVM_Share
+    - /var/home/jose/KVM_Share
 
-fedora_ovn_vm:
+fedora_ovn:
   image: {{ image }}
   memory: 16384
   numcpus: 8
