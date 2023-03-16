@@ -1,5 +1,5 @@
 # kcli-plans
-Collection of kcli plans
+Collection of [kcli](https://github.com/karmab/kcli) plans
 
 ```
 $ kcli create repo -u https://github.com/josecastillolema/kcli-plans kcli-plans
