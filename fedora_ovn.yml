@@ -20,6 +20,7 @@ fedora_ovn:
     - curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
     - install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
     - rm kubectl
+    - echo export KUBECONFIG=$(pwd)/ovn.conf >> /home/fedora/.bashrc
     - echo "alias k=kubectl" >> /home/fedora/.bashrc
     - su fedora -c "git clone -b kind_cni_plugins https://github.com/josecastillolema/ovn-kubernetes.git /home/fedora/ovn-kubernetes"
     - su fedora -c "touch /home/fedora/delete_me_vm_is_ready"
