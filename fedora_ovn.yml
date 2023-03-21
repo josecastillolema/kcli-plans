@@ -12,7 +12,7 @@ fedora_ovn:
   sharedfolders: {{ sharedfolders }}
   cmds:
     - su fedora -c "ln -s /mnt/var/home/jose/KVM_Share/ /home/fedora/KVM_Share"
-    - dnf install -y git python-pip docker make golang
+    - dnf install -y git python-pip docker make golang wget
     - systemctl enable --now docker
     - usermod -aG docker fedora
     - curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.17.0/kind-linux-amd64
