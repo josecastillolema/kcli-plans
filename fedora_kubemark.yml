@@ -3,7 +3,7 @@ parameters:
   sharedfolders:
     - /var/home/jose/KVM_Share
 
-fedora_ovn:
+fedora_kubemark:
   image: {{ image }}
   memory: 16384
   numcpus: 8
