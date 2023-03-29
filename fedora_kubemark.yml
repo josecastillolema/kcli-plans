@@ -1,0 +1,56 @@
+parameters:
+  image: Fedora-Cloud-Base-37-1.7.x86_64.qcow2
+  sharedfolders:
+    - /var/home/jose/KVM_Share
+
+fedora_ovn:
+  image: {{ image }}
+  memory: 16384
+  numcpus: 8
+  cpumodel: host-passthrough
+  nested: 'false'
+  sharedfolders: {{ sharedfolders }}
+  cmds:
+    - su fedora -c "ln -s /mnt/var/home/jose/KVM_Share/ /home/fedora/KVM_Share"
+    - dnf install -y docker @development-tools golang 
+    - systemctl enable --now docker
+    - usermod -aG docker fedora
+    - curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.17.0/kind-linux-amd64
+    - chmod +x ./kind
+    - mv ./kind /usr/local/bin/kind
+    - curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    - install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+    - rm kubectl
+    - wget https://go.kubebuilder.io/dl/latest/$(go env GOOS)/$(go env GOARCH) -O kubebuilder
+    - install -o root -g root -m 0755 kubebuilder /usr/local/bin/kubebuilder
+    - rm kubebuilder 
+    - curl https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh | bash
+    - install -o root -g root -m 0755 kustomize /usr/local/bin/kustomize
+    - rm kustomize
+    - echo "alias k=kubectl" >> /home/fedora/.bashrc
+    - su fedora -c "git clone https://github.com/kubernetes-sigs/cluster-api.git /home/fedora/cluster-api"
+    - su fedora -c "git clone https://github.com/kubernetes-sigs/cluster-api-provider-kubemark.git /home/fedora/cluster-api-provider-kubemark"
+    - su fedora -c "docker run -d --network kind --name kind-registry -p 5000:5000 docker.io/library/registry:2"
+    - su fedora -c "docker network connect kind-registry kind-registry"
+    - cd /home/fedora/cluster-api
+    - su fedora -c "make clusterctl"
+    - install -o root -g root -m 0755 bin/clusterctl /usr/local/bin/clusterctl
+    - su fedora -c "make docker-build REGISTRY=localhost:5000 PULL_POLICY=Always"
+    - su fedora -c "make docker-build-docker-infrastructure REGISTRY=localhost:5000 PULL_POLICY=Always"
+    - su fedora -c "docker push localhost:5000/cluster-api-controller-amd64:dev"
+    - su fedora -c "docker push localhost:5000/kubeadm-bootstrap-controller-amd64:dev"
+    - su fedora -c "docker push localhost:5000/kubeadm-control-plane-controller-amd64:dev"
+    - su fedora -c "docker push localhost:5000/capd-manager-amd64:dev"
+    - cd /home/fedora/cluster-api-provider-kubemark
+    - su fedora -c "make docker-build REGISTRY=localhost:5000"
+    - su fedora -c "make release-manifests"
+    - |
+      su fedora -c "cat <<EOF >> /home/fedora/cluster-api-clusterctl-settings.json
+      {
+          "providers": ["cluster-api", "bootstrap-kubeadm", "control-plane-kubeadm", "infrastructure-docker", "infrastructure-kubemark"],
+          "provider_repos": ["../cluster-api-provider-kubemark"]
+      }
+      EOF
+    - cd /home/fedora/cluster-api
+    - su fedora -c "python3 cmd/clusterctl/hack/create-local-repository.py"
+    - su fedora -c "touch /home/fedora/delete_me_vm_is_ready"
