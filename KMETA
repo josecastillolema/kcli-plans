@@ -3,3 +3,9 @@
   description: Fedora 37 VM with ovn-kubernetes kind local setup
   numvms: 1
   memory: 16Gi
+
+- name: fedora_kubemark
+  file: fedora_kubemark.yml
+  description: Fedora 37 VM with cluster-api and kubemark
+  numvms: 1
+  memory: 16Gi
