@@ -23,5 +23,5 @@ fedora_ovn:
     - rm kubectl
     - echo export KUBECONFIG=$(pwd)/ovn.conf >> /home/fedora/.bashrc
     - echo "alias k=kubectl" >> /home/fedora/.bashrc
-    - su fedora -c "git clone -b kind_cni_plugins https://github.com/josecastillolema/ovn-kubernetes.git /home/fedora/ovn-kubernetes"
+    - su fedora -c "git clone https://github.com/ovn-org/ovn-kubernetes.git /home/fedora/ovn-kubernetes"
     - su fedora -c "touch /home/fedora/delete_me_vm_is_ready"
